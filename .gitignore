@@ -1,0 +1,19 @@
+node_modules/
+dist/
+.env
+.env.local
+*.log
+.DS_Store
+coverage/
+*.db
+*.sqlite
+
+# IDE
+.idea/
+.vscode/
+
+# Claude Code settings
+.claude/
+
+# Local test configs
+tests/*.local.env

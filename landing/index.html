@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GlyphForge - Unicode Text Transform API & MCP Server</title>
+  <meta name="description" content="Transform text into 30+ Unicode styles. Bold, italic, zalgo, vaporwave, and more. API and MCP server for AI integrations.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔮</text></svg>">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-secondary: #12121a;
+      --text: #e4e4e7;
+      --text-muted: #71717a;
+      --accent: #8b5cf6;
+      --accent-hover: #7c3aed;
+      --gradient: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f59e0b 100%);
+      --border: #27272a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header */
+    header {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-outline {
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 100px 0;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 64px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 20px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    /* Demo */
+    .demo {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin: 60px 0;
+    }
+
+    .demo-input {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .demo-input input {
+      flex: 1;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+    }
+
+    .demo-input select {
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .demo-output {
+      padding: 24px;
+      background: var(--bg);
+      border-radius: 8px;
+      font-size: 24px;
+      text-align: center;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      word-break: break-all;
+    }
+
+    /* Styles Grid */
+    .styles-section {
+      padding: 80px 0;
+    }
+
+    .section-title {
+      font-size: 40px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .section-subtitle {
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .styles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .style-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+
+    .style-card:hover {
+      border-color: var(--accent);
+    }
+
+    .style-name {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+
+    .style-example {
+      font-size: 18px;
+      word-break: break-all;
+    }
+
+    /* Pricing */
+    .pricing-section {
+      padding: 80px 0;
+      background: var(--bg-secondary);
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .pricing-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .pricing-card.featured {
+      border-color: var(--accent);
+      position: relative;
+    }
+
+    .pricing-card.featured::before {
+      content: 'Popular';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: white;
+      padding: 4px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .pricing-tier {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .pricing-price {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .pricing-price span {
+      font-size: 16px;
+      color: var(--text-muted);
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin: 24px 0;
+      text-align: left;
+    }
+
+    .pricing-features li {
+      padding: 8px 0;
+      color: var(--text-muted);
+    }
+
+    .pricing-features li::before {
+      content: '✓';
+      color: var(--accent);
+      margin-right: 8px;
+    }
+
+    /* MCP Section */
+    .mcp-section {
+      padding: 80px 0;
+    }
+
+    .mcp-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .mcp-code {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 14px;
+      overflow-x: auto;
+    }
+
+    .mcp-code pre {
+      margin: 0;
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 40px;
+      }
+
+      .mcp-content {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">🔮 GlyphForge</div>
+        <ul class="nav-links">
+          <li><a href="#demo">Demo</a></li>
+          <li><a href="#styles">Styles</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#mcp">MCP</a></li>
+          <li><a href="/docs">Docs</a></li>
+        </ul>
+        <a href="/register" class="btn btn-primary">Get API Key</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <h1>Transform Text Into Art</h1>
+        <p>30+ Unicode styles via REST API and MCP server. Bold, italic, zalgo, vaporwave, and more. Perfect for Discord bots, social media tools, and AI integrations.</p>
+        <div class="hero-buttons">
+          <a href="/register" class="btn btn-primary">Get Free API Key</a>
+          <a href="/docs" class="btn btn-outline">Read Docs</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="container" id="demo">
+      <div class="demo">
+        <div class="demo-input">
+          <input type="text" id="input" placeholder="Type something..." value="Hello World">
+          <select id="style">
+            <option value="bold">Bold</option>
+            <option value="italic">Italic</option>
+            <option value="script">Script</option>
+            <option value="fraktur">Fraktur</option>
+            <option value="doubleStruck">Double Struck</option>
+            <option value="monospace">Monospace</option>
+            <option value="circled">Circled</option>
+            <option value="squared">Squared</option>
+            <option value="vaporwave">Vaporwave</option>
+            <option value="smallCaps">Small Caps</option>
+            <option value="upsideDown">Upside Down</option>
+            <option value="strikethrough">Strikethrough</option>
+            <option value="zalgo">Zalgo</option>
+            <option value="leet">Leet Speak</option>
+            <option value="morse">Morse Code</option>
+          </select>
+        </div>
+        <div class="demo-output" id="output">𝗛𝗲𝗹𝗹𝗼 𝗪𝗼𝗿𝗹𝗱</div>
+      </div>
+    </section>
+
+    <section class="styles-section" id="styles">
+      <div class="container">
+        <h2 class="section-title">30+ Styles Available</h2>
+        <p class="section-subtitle">All transformations use Unicode - works everywhere text is supported</p>
+        <div class="styles-grid" id="styles-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <section class="pricing-section" id="pricing">
+      <div class="container">
+        <h2 class="section-title">Simple Pricing</h2>
+        <p class="section-subtitle">Start free, upgrade when you need more</p>
+        <div class="pricing-grid">
+          <div class="pricing-card">
+            <div class="pricing-tier">Free</div>
+            <div class="pricing-price">$0<span>/month</span></div>
+            <ul class="pricing-features">
+              <li>100 requests/day</li>
+              <li>All 30+ styles</li>
+              <li>REST API access</li>
+              <li>Community support</li>
+            </ul>
+            <a href="/register" class="btn btn-outline">Get Started</a>
+          </div>
+          <div class="pricing-card featured">
+            <div class="pricing-tier">Pro</div>
+            <div class="pricing-price">$9<span>/month</span></div>
+            <ul class="pricing-features">
+              <li>10,000 requests/month</li>
+              <li>All 30+ styles</li>
+              <li>REST API + MCP server</li>
+              <li>Priority support</li>
+            </ul>
+            <a href="/stripe/checkout?plan=pro" class="btn btn-primary">Upgrade</a>
+          </div>
+          <div class="pricing-card">
+            <div class="pricing-tier">Business</div>
+            <div class="pricing-price">$29<span>/month</span></div>
+            <ul class="pricing-features">
+              <li>100,000 requests/month</li>
+              <li>All 30+ styles</li>
+              <li>REST API + MCP server</li>
+              <li>Dedicated support</li>
+            </ul>
+            <a href="/stripe/checkout?plan=business" class="btn btn-outline">Contact Us</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mcp-section" id="mcp">
+      <div class="container">
+        <div class="mcp-content">
+          <div>
+            <h2 class="section-title" style="text-align: left;">MCP Server</h2>
+            <p style="color: var(--text-muted); margin-bottom: 24px;">Use GlyphForge directly in Claude, Cursor, or any MCP-compatible AI tool. Transform text with natural language.</p>
+            <a href="https://github.com/glyphforge/glyphforge" class="btn btn-primary">View on GitHub</a>
+          </div>
+          <div class="mcp-code">
+<pre>{
+  "mcpServers": {
+    "glyphforge": {
+      "command": "npx",
+      "args": ["glyphforge-mcp"]
+    }
+  }
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>Built with 🔮 by GlyphForge &bull; <a href="/docs">API Docs</a> &bull; <a href="https://github.com/glyphforge/glyphforge">GitHub</a></p>
+    </div>
+  </footer>
+
+  <script>
+    // Styles data
+    const styles = [
+      { name: 'bold', example: '𝗛𝗲𝗹𝗹𝗼 𝗪𝗼𝗿𝗹𝗱' },
+      { name: 'italic', example: '𝘏𝘦𝘭𝘭𝘰 𝘞𝘰𝘳𝘭𝘥' },
+      { name: 'script', example: '𝓗𝓮𝓵𝓵𝓸 𝓦𝓸𝓻𝓵𝓭' },
+      { name: 'fraktur', example: '𝔥𝔢𝔩𝔩𝔬 𝔴𝔬𝔯𝔩𝔡' },
+      { name: 'doubleStruck', example: '𝕙𝕖𝕝𝕝𝕠 𝕨𝕠𝕣𝕝𝕕' },
+      { name: 'monospace', example: '𝚑𝚎𝚕𝚕𝚘 𝚠𝚘𝚛𝚕𝚍' },
+      { name: 'circled', example: 'ⓗⓔⓛⓛⓞ ⓦⓞⓡⓛⓓ' },
+      { name: 'squared', example: '🅷🅴🅻🅻🅾 🆆🅾🆁🅻🅳' },
+      { name: 'vaporwave', example: 'Ｈｅｌｌｏ　Ｗｏｒｌｄ' },
+      { name: 'smallCaps', example: 'ʜᴇʟʟᴏ ᴡᴏʀʟᴅ' },
+      { name: 'upsideDown', example: 'pꞁɹoM oꞁꞁǝH' },
+      { name: 'strikethrough', example: 'H̶e̶l̶l̶o̶ ̶W̶o̶r̶l̶d̶' },
+      { name: 'zalgo', example: 'H̷̢e̵͔l̶̪l̸͚o̴̤' },
+      { name: 'leet', example: 'H3ll0 W0rld' },
+      { name: 'morse', example: '.... . .-.. .-.. ---' },
+      { name: 'sparkles', example: '✨ H ✨ e ✨ l ✨ l ✨ o ✨' },
+    ];
+
+    // Populate styles grid
+    const grid = document.getElementById('styles-grid');
+    styles.forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'style-card';
+      card.innerHTML = `
+        <div class="style-name">${s.name}</div>
+        <div class="style-example">${s.example}</div>
+      `;
+      grid.appendChild(card);
+    });
+
+    // Demo functionality
+    const input = document.getElementById('input');
+    const styleSelect = document.getElementById('style');
+    const output = document.getElementById('output');
+
+    async function updateDemo() {
+      const text = input.value || 'Hello World';
+      const style = styleSelect.value;
+
+      try {
+        const res = await fetch(`/transform?text=${encodeURIComponent(text)}&style=${style}`);
+        const data = await res.json();
+        if (data.success) {
+          output.textContent = data.data.transformed;
+        }
+      } catch (e) {
+        // Fallback for static demo
+        const styleData = styles.find(s => s.name === style);
+        output.textContent = styleData?.example || text;
+      }
+    }
+
+    input.addEventListener('input', updateDemo);
+    styleSelect.addEventListener('change', updateDemo);
+  </script>
+</body>
+</html>
